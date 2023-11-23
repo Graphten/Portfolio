@@ -1,0 +1,141 @@
+package comprehensive;
+
+import static org.junit.jupiter.api.Assertions.*;
+import java.util.NoSuchElementException;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+/**
+ * Test the functionality of DisjointSetDiner.
+ * 
+ * @author Dillon Boone and Frederico Tremonti
+ * @version April 15th, 2023
+ */
+class DisjointSetDinerTest {
+	
+	DisjointSetDiner<Integer> disjset;
+	DisjointSetDiner<Integer> empty;
+	
+	@BeforeEach
+	void setUp() throws Exception {
+		disjset = new DisjointSetDiner<>();
+		empty = new DisjointSetDiner<>();
+		
+		disjset.makeSet(1);
+		disjset.makeSet(2);
+		disjset.makeSet(3);
+		disjset.union(1, 2);
+		disjset.union(2, 3);
+		
+		disjset.makeSet(4);
+		disjset.makeSet(5);
+		disjset.makeSet(6);
+		disjset.union(4, 5);
+		disjset.union(4, 6);
+		
+		disjset.makeSet(7);
+		disjset.makeSet(8);
+		disjset.makeSet(9);
+		disjset.makeSet(10);
+		disjset.union(7, 8);
+		disjset.union(7, 9);
+		disjset.union(8, 10);
+		
+		disjset.makeSet(11);
+	}
+
+	
+	
+//	/* In the set up include 3 sets: {1:R, 2, 3} {4:R, 5, 6} {7:R, 8, 9, 10}
+//	 * 
+//	 * .makeSet() - Makes new set (both for a disjoint set that has already been populated and an empty one).
+//	 * 				*New set returns itself in find.
+//	 * 				Throws Ill Arg Exc when element already exists.
+//	 * 
+	
+	@Test
+	void makeInEmptyDisjointSet() {
+		empty.makeSet(0);
+		assertEquals(0, empty.getRepresentative(0));
+	}
+	
+	@Test
+	void makeInPopulatedDisjointSet() {
+		disjset.makeSet(12);
+		assertEquals(12, disjset.getRepresentative(12));
+	}
+	
+	@Test
+	void makeSetElementAlreadyExists() {
+		assertThrows(IllegalArgumentException.class, () -> {disjset.makeSet(11);});
+	}
+//	 * .getRepresentative() - Returns correct element.
+//	 * 						  Throws No Such Element Exception.		
+//	 * 						  Representatives returns themselves.
+//	 * 						  *Representative changes after UNION (try with sets that have depth greater than 1, and
+//	 * 															  single sets where the representative is no longer the rep).
+//	 * 
+	
+	@Test
+	void getRepresentativeRank1() {
+		assertEquals(1, disjset.getRepresentative(1));
+		assertEquals(7, disjset.getRepresentative(7));
+	}
+	
+	@Test
+	void getRepresentativeRank2() {
+		assertEquals(1, disjset.getRepresentative(3));
+		assertEquals(4, disjset.getRepresentative(5));
+	}
+	
+	@Test
+	void getRepresentativeRank3() {
+		disjset.union(1,4);
+		assertEquals(1, disjset.getRepresentative(5));
+		assertEquals(1, disjset.getRepresentative(4));
+	}
+	
+	@Test
+	void getRepresentativeElementDoesNotExist() {
+		assertThrows(NoSuchElementException.class, () -> {disjset.getRepresentative(40);});
+	}
+	
+//	 * .union() - Temporary rank test.
+//	 * 			  *Representative changes for all members of a set.
+//	 * 			  Throws No Such Element Exception if one of the elements passed in don't exist.
+//	 * 			  Throws IllegalArgument if the elements exist in the same set.
+//	 * 
+
+	
+	@Test
+	void unionOneElementDoesNotExist() {
+		assertThrows(NoSuchElementException.class, () -> {disjset.union(1, 12);});
+		assertThrows(NoSuchElementException.class, () -> {disjset.union(12, 1);});
+	}
+	
+	@Test
+	void unionElementsDoNotExist() {
+		assertThrows(NoSuchElementException.class, () -> {disjset.union(14, 12);});
+	}
+	
+	@Test
+	void unionElementsInSameSet() {
+		assertThrows(IllegalArgumentException.class, () -> {disjset.union(1, 2);});
+	}
+	
+	@Test
+	void unionDifferentRank() {
+		disjset.union(1, 4);
+		disjset.union(7, 1);
+		
+		assertEquals(1, disjset.getRepresentative(10));
+	}
+	
+//	@Test
+//	void rankTest() {
+//		assertEquals(2, disjset.rankMap.get(1));
+//		disjset.union(1, 4);
+//		assertEquals(3, disjset.rankMap.get(1));
+//	}
+}
